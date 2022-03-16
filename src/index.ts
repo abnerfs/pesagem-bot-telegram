@@ -27,11 +27,25 @@ bot.onText(/\/historico/, async (msg, match) => {
     }
 });
 
-bot.onText(/\/pesagem (.+)/, async (msg, match) => {
+bot.onText(/\/peso(.*)/g, async (msg, match) => {
     const { telegramId, name, sendMessage } = msgData(msg);
     if (match && telegramId) {
         const weight = parseFloat(match[1]);
-        await controller.saveWeight(telegramId, name, new Date(2022, 2, 15), weight, sendMessage);
+        await controller.saveWeight(telegramId, name, new Date(), weight, sendMessage);
+    }
+});
+
+bot.onText(/\/start/, async (msg, match) => {
+    const { telegramId, name, sendMessage } = msgData(msg);
+    if (telegramId) {
+        await controller.start(telegramId, name, sendMessage);
+    }
+});
+
+bot.onText(/\/help/, async (msg, match) => {
+    const { telegramId, name, sendMessage } = msgData(msg);
+    if (telegramId) {
+        await controller.help(telegramId, name, sendMessage);
     }
 });
 

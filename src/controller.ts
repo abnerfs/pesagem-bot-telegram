@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client'
+import { getCommand, getCommandFullDescription, getCommandListText } from './bot-commands';
 const prisma = new PrismaClient();
 
 const timeRangeFromTime = (day: Date) => {
@@ -13,6 +14,14 @@ const decimalToNumber = (num: Prisma.Decimal) => {
 }
 
 export const controller = {
+    async help(telegramId: string, name: string, sendMessage: (text: string) => Promise<void>) {
+        await this.registerUser(telegramId, name);
+        return sendMessage(getCommandListText());
+    },
+    async start(telegramId: string, name: string, sendMessage: (text: string) => Promise<void>) {
+        await this.registerUser(telegramId, name);
+        return sendMessage(`Bem vindo ao bot de pesagem\n${getCommandListText()}`);
+    },
     async listWeighing(telegramId: string, name: string, sendMessage: (text: string) => Promise<void>) {
         const user = await this.registerUser(telegramId, name);
         const weighings = await prisma.weighing.findMany({
@@ -52,9 +61,10 @@ export const controller = {
         baseDate: Date,
         weight: number,
         sendMessage: (text: string) => Promise<void>) {
+        const command = getCommand('/peso');
         const user = await this.registerUser(telegramId, name);
         if (isNaN(weight) || weight <= 0)
-            return sendMessage('/pesagem <peso em kg>');
+            return sendMessage(getCommandFullDescription(command));
 
         const { start, end } = timeRangeFromTime(baseDate);
         let currentWeight = await prisma.weighing.findFirst({
